@@ -58,6 +58,7 @@ Constructed a multivariate multi-step time series adaptation of a Random Forest 
 When approaching this project, we had anticipated data cleaning to be the most labor intensive aspect. Despite the fact that prior to approaching machine learning, we only had experience with similar data cleaning and utilization projects, the complexity and size of the dataset provided us with many challenges in terms of problems and algorithm runtime.
 
 Here are the major steps that we took during cleaning:
+
 ---
 ### Research and Preparation
 This was by far the most time-intensive aspect of the project, as neither of us had done anything in machine learning before, let alone anything on this scale. Despite this, we dove headfirst into the high level applications of machine learning for time-series analysis. Unsurprisingly, we ran into problem after problem, and after realizing that most of our problems were due to a lack of understanding, we started from the basics.
