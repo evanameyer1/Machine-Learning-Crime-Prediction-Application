@@ -70,4 +70,5 @@ Aside from ARIMA, we explored LSTM, Random Forest, Linear Regression, and NN's f
 At this point, our interest in machine learning had grown to the point that we wanted to actually write many of these models from scratch, so we started from the basics and began working up.
 
 We decided to do a ground-up implementation of each of these models but with the context of our use case in mind the entire time, hopefully achieving a strong representation of the correlation between Chicago crime and infrastructure.
+
 ---
