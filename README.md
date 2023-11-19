@@ -90,9 +90,9 @@ def clean_data(df, type):
     return df
 ```
 
-## Clean Data Method
+#### 2. Clean Data Method (Linear Regression Class)
 
-This method, part of the Linear Regression class instance, operates on two datasets, `train_dataset` and `test_dataset`. It performs the following operations:
+In the Linear Regression class, we applied the clean_data method to both training and testing datasets, converting the 'date' column to datetime format and extracting additional temporal features:
 
 ```python
 def clean_data(self):
@@ -117,9 +117,9 @@ def clean_data(self):
     return self.train_dataset, self.test_dataset
 ```
 
-## Convert to Polygon Function
+#### 3. Convert to Polygon Function
 
-This function takes a DataFrame (`df`) with a 'the_geom' column containing locational data in the form of MULTIPOLYGON. It performs the following operations:
+We introduced a convert_to_polygon function that takes a DataFrame with locational data in the form of MULTIPOLYGON and converts it into a list of Polygon objects:
 
 ```python
 def convert_to_polygon(df):
@@ -150,9 +150,9 @@ def convert_to_polygon(df):
     return updated_polygons
 ```
 
-## Determine Within Function
+#### 4. Determine Within Function
 
-This function takes a DataFrame (`df`) with latitude (`lat`) and longitude (`long`) columns. It determines whether each location is within specified polygons and assigns a status and area accordingly.
+The determine_within function now takes latitude and longitude columns in a DataFrame and determines whether each location is within specified polygons, assigning a status and area accordingly:
 
 ```python
 def determine_within(df):
@@ -193,9 +193,9 @@ def determine_within(df):
     return df
 ```
 
-## Prepare Data Method
+#### 5. Prepare Data Method (Random Forest Class)
 
-This method, part the Random Forest class instance, prepares time-series datasets for modeling. It creates various lag, rolling mean, rolling min, rolling max, and rolling standard deviation features for each target variable.
+The prepare_data method in the Random Forest class prepares time-series datasets for modeling by creating various lag, rolling mean, rolling min, rolling max, and rolling standard deviation features for each target variable:
 
 ```python
 def prepare_data(self, exempt=[]):
@@ -261,9 +261,9 @@ def prepare_data(self, exempt=[]):
     return self.train_df, self.test_df, self.features
 ```
 
-## Normalize DataFrame Method
+#### 6. Normalize DataFrame Method (Linear Regression Class)
 
-This method, part of the Linear Regression class instance, normalizes all columns in a pandas DataFrame using the mean and standard deviation calculated from the training dataset.
+The normalize_dataframe method normalizes all columns in a pandas DataFrame using the mean and standard deviation calculated from the training dataset:
 
 ```python
 def normalize_dataframe(self):
@@ -289,11 +289,11 @@ def normalize_dataframe(self):
     return self.train_dataset, self.test_dataset
 ```
 
-Aggregation + Pivoting Examples: 
+#### 7. Aggregation and Pivoting Examples
 
-## Fill Gaps Function
+##### Fill Gaps Function
 
-This function takes a DataFrame (`df`) containing date, hour, and area columns and fills in missing combinations of date, hour, and area with zero values.
+This function fills in missing combinations of date, hour, and area with zero values in a DataFrame:
 
 ```python
 def fill_gaps(df):
@@ -315,9 +315,9 @@ def fill_gaps(df):
     return merged_df
 ```
     
-## Aggregate Data Function
+##### Aggregate Data Function
 
-This function aggregates and merges various datasets related to crime, ridership, divvy trips, lighting, and vacant buildings.
+This function aggregates and merges various datasets related to crime, ridership, divvy trips, lighting, and vacant buildings:
 
 ```python
 def aggregate_data():
