@@ -54,14 +54,13 @@ Constructed a multivariate multi-step time series adaptation of a Random Forest 
 - Records creation/completion dates, service request types, addresses, and geographical coordinates.
 - Offers insights into areas experiencing street lighting issues in the city.
 ---
-### Data Cleaning and Handling
-When approaching this project, we had anticipated data cleaning to be the most labor intensive aspect. Despite the fact that prior to approaching machine learning, we only had experience with similar data cleaning and utilization projects, the complexity and size of the dataset provided us with many challenges in terms of problems and algorithm runtime.
+### Data Cleaning and Wrangling
 
-### Standard Cleaning examples
+In this section, we detail the steps taken to clean and wrangle the dataset for the project. Given the complexity and size of the dataset, we encountered challenges that required meticulous handling of missing values, standardizing column names, and converting locational data formats.
 
-## Clean Data Function
+#### 1. Standard Cleaning Process
 
-This function takes a DataFrame (`df`) and a `type` parameter. It performs the following steps:
+We implemented a standardized cleaning process to ensure consistency in the dataset. This involved creating a `clean_data` function that accepts a DataFrame and a type parameter, performing the following steps:
 
 ```python
 def clean_data(df, type):
