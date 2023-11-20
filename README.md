@@ -794,10 +794,244 @@ def train(self, ratio=0.1, max_epochs=None, min_loss_delta=0.01, patience=10):
     print(f'Training Complete. Final Error: {min_loss}')
 ```
 
+4. Parameter Tuning (Random Forest)
+
+```python
+def tune_random_forest_hyperparameters(self, X, y):
+    """
+    Tune the hyperparameters of a Random Forest model using GridSearchCV.
+
+    Parameters:
+    - X: Input features.
+    - y: Target variable.
+
+    Returns:
+    - best_params: The best hyperparameters found by GridSearchCV.
+    - best_score: The best score achieved with the best hyperparameters.
+    """
+    param_grid = {
+        'n_estimators': [50, 100, 150],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'max_features': ['auto', 'sqrt', 'log2']
+    }
+
+    rf = RandomForestRegressor(random_state=0, n_jobs=6)
+    grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+    grid_search.fit(X, y)
+
+    self.best_params = grid_search.best_params_
+    self.best_score = grid_search.best_score_
+
+    return self.best_params, self.best_score
+```
+
+5. Model Fitting (Random Forest)
+
+```python
+def fit_model(self):
+    """
+    Fit a RandomForestRegressor model to the training dataset.
+
+    Returns:
+    - output: A dictionary containing model-related information.
+    """
+    train_df = self.train_df.copy()
+
+    imputer = SimpleImputer()
+    self.Xtr = imputer.fit_transform(train_df[self.features])
+    self.ytr = train_df[self.targets]
+
+    best_params, best_score = self.tune_random_forest_hyperparameters(self.Xtr, self.ytr)
+
+    mdl = RandomForestRegressor(n_estimators=best_params.get('n_estimators', 100),
+                                max_depth=best_params.get('max_depth', None),
+                                min_samples_split=best_params.get('min_samples_split', 2),
+                                min_samples_leaf=best_params.get('min_samples_leaf', 1),
+                                max_features=best_params.get('max_features', 'auto'),
+                                random_state=best_params.get('random_state', 0),
+                                n_jobs=best_params.get('n_jobs', 6))
+
+    mdl.fit(self.Xtr, self.ytr)
+
+    self.model = mdl
+    self.params = best_params
+    self.score = best_score
+
+    return self.parameters()
+```
+
+6. The Beginnings of Our Unique LSTM Adaptation
+
+```python
+class SimpleLSTM(light.LightningModule):
+    def __init__(self, cols):
+        super().__init__()
+        self.columns = cols
+        
+        # Initialize LSTM parameters for each column in 'cols'
+        mean = torch.tensor(0.0)
+        std = torch.tensor(1.0)
+        locals().update({f'{col}': {'wlr1' : nn.Parameter(torch.normal(mean=mean, std=std), requires_grad=True),
+                                    'wlr2' : nn.Parameter(torch.normal(mean=mean, std=std), requires_grad=True),
+                                    'blr1' : nn.Parameter(torch.tensor(0.), requires_grad=True),
+
+                                    'wpr1' : nn.Parameter(torch.normal(mean=mean, std=std), requires_grad=True),
+                                    'wpr2' : nn.Parameter(torch.normal(mean=mean, std=std), requires_grad=True),
+                                    'bpr1' : nn.Parameter(torch.tensor(0.), requires_grad=True),
+
+                                    'wp1' : nn.Parameter(torch.normal(mean=mean, std=std), requires_grad=True),
+                                    'wp2' : nn.Parameter(torch.normal(mean=mean, std=std), requires_grad=True),
+                                    'bp1' : nn.Parameter(torch.tensor(0.), requires_grad=True),
+
+                                    'wo1' : nn.Parameter(torch.normal(mean=mean, std=std), requires_grad=True),
+                                    'wo2' : nn.Parameter(torch.normal(mean=mean, std=std), requires_grad=True),
+                                    'bo1' : nn.Parameter(torch.tensor(0.), requires_grad=True),
+                                    } for col in cols})
+    
+    # input_value = ["col1", "col2", "col3"]
+    def lstm_unit(self, input_values, long_memory, short_memory):
+        length = len(self.columns)
+
+        long_remember_percent = potential_remember_percent = potential_memory = output_percent = 0
+
+        # Iterate through each column
+        for i in range(length):
+            # Calculate percentages and memory updates for long and short term
+            long_remember_percent += torch.sigmoid((short_memory * locals()[self.columns[i]]['wlr1']) + 
+                                                  (input_values[i] * locals()[self.columns[i]]['wlr2']) +
+                                                  locals()[self.columns[i]]['blr1'])
+            
+            potential_remember_percent += torch.sigmoid((short_memory * locals()[self.columns[i]]['wpr1']) + 
+                                                  (input_values[i] * locals()[self.columns[i]]['wpr2']) +
+                                                  locals()[self.columns[i]]['bpr1'])
+                
+            potential_memory += torch.tanh((short_memory * locals()[self.columns[i]]['wp1']) + 
+                                           (input_values[i] * locals()[self.columns[i]]['wp2']) +
+                                           locals()[self.columns[i]]['bp1'])
+            
+            output_percent += torch.tanh((short_memory * locals()[self.columns[i]]['wo1']) + 
+                                        (input_values[i] * locals()[self.columns[i]]['wo2']) +
+                                        locals()[self.columns[i]]['bo1'])
+        
+        # Average the calculated percentages
+        long_remember_percent /= length
+        potential_remember_percent /= length
+        potential_memory /= length 
+        output_percent /= length
+        
+        # Update long and short term memory
+        updated_long_memory = ((long_memory * long_remember_percent) + 
+                               (potential_remember_percent * potential_memory))
+
+        updated_short_memory = torch.tanh(updated_long_memory) * output_percent
+        
+        return([updated_long_memory, updated_short_memory])
+    
+    def forward(self, value_table):
+        long_memory = 0
+        short_memory = 0
+        
+        # Iterate through each row in the input table
+        for row in value_table:
+            long_memory, short_memory = self.lstm_unit(row, long_memory, short_memory)
+        
+        # Return the final short-term memory
+        return short_memory
+```
 ---
 ## Testing Model Accuracy
 
+After successfully completing each model, we ran multiple statistical calculations on each model's predicted data to determine error and accuracy. 
 
+### Error Calculations (Random Forest)
+Here is the error calculations implemented in the Random Forest model, that involve both a WAE and RMSE error calculations:
 
+```python
+def calculate_wae_rmse(self, reference, predictions):
+    """
+    Calculate the Weighted Absolute Error (WAE), Root Mean Square Error (RMSE),
+    and their respective accuracies for a single target.
 
+    Parameters:
+    - reference: The reference dataset containing true values.
+    - predictions: The predicted values to compare to.
+
+    Returns:
+    - error_metrics: Dictionary containing WAE, RMSE, and their accuracies for the specified target.
+    """
+    error_metrics = {}
+
+    # Convert DataFrame or Series to NumPy arrays
+    y_true = reference.values.astype(float)  # Convert to float if not already
+    y_pred = predictions.astype(float)
+
+    # Calculate Weighted Absolute Error (WAE)
+    wae = np.sum(np.abs(y_true - y_pred))
+    error_metrics['wae'] = wae
+
+    # Calculate Root Mean Square Error (RMSE)
+    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+    error_metrics['rmse'] = rmse
+
+    # Calculate the accuracy for WAE (WAE Accuracy)
+    wae_accuracy = 100 - (wae / np.sum(np.abs(y_true)) * 100)
+    error_metrics['wae_accuracy'] = wae_accuracy
+
+    # Calculate the accuracy for RMSE (RMSE Accuracy)
+    rmse_accuracy = 100 - (rmse / np.std(y_true) * 100)
+    error_metrics['rmse_accuracy'] = rmse_accuracy
+
+    self.error_metrics = error_metrics
+
+    return error_metrics
+```
+
+### Printing Model Performance (Random Forest)
+The print_performance function assesses the performance of a RandomForestRegressor model by first identifying and selecting important features based on a significance level. It then trains the model using these important features on the provided target variable within the training dataset. Subsequently, it prepares the test data with the same important features and generates predictions. The function calculates and prints both the Mean Absolute Error (WAE) and Root Mean Square Error (RMSE), along with their respective accuracies, providing a comprehensive evaluation of the model's predictive performance. The choice of features is determined by their importance, and the function facilitates a clear understanding of the model's accuracy through these key metrics.
+
+```python
+def print_performance(self, target, sig_level=0.05):
+
+    important_features = [feature for feature in self.features if self.importances.get(feature, 0) > sig_level]
+    df = self.train_df.copy().dropna(subset=self.features).fillna(0)
+    important_df = df[important_features]
+    target_df = df[target]
+
+    # Train the random forest
+    rf_most_important = RandomForestRegressor(n_estimators=1000, random_state=42)
+    rf_most_important.fit(important_df, target_df)
+
+    # Prepare the test data using the same important features
+    test_important_df = df[important_features].fillna(0)
+
+    # Make predictions
+    predictions = rf_most_important.predict(test_important_df)
+
+    # Calculate WAE, RMSE, and their respective accuracies
+    error_metrics = self.calculate_wae_rmse(target_df, predictions)
+
+    # Display the performance metrics
+    print('Mean Absolute Error (WAE):', round(error_metrics['wae'], 4))
+    print('WAE Accuracy:', round(error_metrics['wae_accuracy'], 4), '%.')
+
+    print('Root Mean Square Error (RMSE):', round(error_metrics['rmse'], 4))
+    print('RMSE Accuracy:', round(error_metrics['rmse_accuracy'], 4), '%.')
+```
+
+### Random Forest Results
+
+#### Minimum Seasonality Models
+- Non-Violent: WAE: 164.4428, WAE Acc: **97.972%**, RMSE: 0.0512, RMSE Acc: 90.8533%
+- Violent: WAE: 9.7219, WAE Acc: **99.7209%**, RMSE: 0.0118, RMSE Acc: 96.9487%
+
+#### Maximum Seasonality Models
+- Non-Violent: WAE: 1151.9205, WAE Acc: **93.3478%**, RMSE: 0.1373, RMSE Acc: 89.6985%
+- Violent: WAE: 1847.1796, WAE Acc: **89.413%**, RMSE: 0.1537, RMSE Acc: 82.3706%
+
+#### Average Seasonality Models
+- Non-Violent: WAE: 164.4428, WAE Acc: **97.972%**, RMSE: 0.0512, RMSE Acc: 90.8533%
+- Violent: WAE: 9.7219, WAE Acc: **99.7209%**, RMSE: 0.0118, RMSE Acc: 96.9487%
+  
 ---
