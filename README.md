@@ -7,17 +7,30 @@ Forecasting both violent and non-violent crimes across 77 neighborhoods for a fu
 
 ### Our Solution Approach:
 
-Developed multivariate time series adaptations of models such as Linear Regression, LSTM, Auto Regression, Moving Average, and their combinations to enhance performance and robustness.
-Constructed a multivariate multi-step time series adaptation of a Random Forest model trained on three years of data to predict future crime occurrences with high accuracy.
+Our goal was to develop a robust multivariate multi-step time-series model for our dataset. Despite an extensive search for a publicly available, rigorously validated, and well-documented model tailored to our specific use case, we found none. Consequently, we decided to adapt prominent models, listed below, to handle and forecast multivariate multi-step time-series data. We then conducted a comparative analysis of the resulting accuracies for each model.
+
+During the adaptation process, we also conceived a novel model approach, detailed at the bottom of the README, which we anticipate will exhibit superior predictive capabilities for our dataset. Currently, we are in the midst of constructing, testing, and validating this model. Stay tuned for further updates!
 
 ### Tech Stack:
 - Python
 - Pandas
+- Numpy
 - PyTorch
+- Lightning
 - scikit-learn (SKlearn)
+- Statsmodels
 - ARiMA
 - Matplotlib
 - Shapely
+
+### Models:
+- Linear Regression
+- LSTM
+- Auto Regression
+- Moving Average
+- Random Forest
+- Custom LSTM to NN model
+- Additional combinations of ARIMA, SARIMA, VAR, and AR
 ---
 ## Description of Data
 
@@ -429,5 +442,154 @@ We decided to do a ground-up implementation of each of these models but with the
 - *Min:* 2008-01-18
 - *Max:* 2023-10-19
 
+### Testing and Training Datasets
+
+Considering the specified date ranges outlined earlier, our decision was to focus our efforts on the period spanning 2016 to 2020, encompassing comprehensive data from all relevant datasets. Subsequently, we divided the extensive dataset into distinct subsets, maintaining a 3:1 ratio. Adhering to the natural chronology of a time-series dataset, our training dataset consisted of all data points recorded from 01/01/2016, to 12/31/2018, with our testing dataset incorporated data points from 01/01/2019, to 12/31/2019. The choice of this extended timeframe for the testing dataset was deliberate, aiming to ensure that our models could effectively capture hourly, daily, weekly, monthly, and yearly seasonal trends. 
+
+Our final testing and training datasets each had the following columns:
+
+- date (feature)
+- non-violent (target)
+- violent (target)
+- train_rides (feature)
+- bike_rides (feature)
+- lighting (feature)
+- vacant_buildings (feature)
+
 ### Representative Samples
 
+Considering the challenge of working with testing and training datasets for all 77 neighborhoods and the need to fit approximately 7 models per dataset, the task of managing around 1078 unique models proved to be impractical. To address this, we opted for a more manageable approach by creating 12 representative datasets. These datasets served as a basis for comparing the performance and accuracy of each model across various test cases.
+
+Given that each adaptation involved incorporating time-series data into every model, we established three representative samples for each target column ('non-violent' and 'violent' crimes). These samples were determined based on seasonality, identified through a Dickey-Fuller test, and included metrics for 'min,' 'avg,' and 'max.' This streamlined approach allowed for a comprehensive yet more manageable evaluation of model performance.
+
+In this section, we employ the Augmented Dickey-Fuller (ADF) test from the statsmodels library to assess the stationarity of time-series data. The purpose is to identify and address any potential non-stationarity within the dataset, crucial for accurate modeling and forecasting. The function dickey_fuller_test iterates through specified target columns, conducts the ADF test for each, and returns a dictionary containing p-values indicating the stationarity of each column.:
+
+```python
+from datetime import datetime
+from statsmodels.tsa.stattools import adfuller
+
+# Function to perform Augmented Dickey-Fuller test on specified columns
+def dickey_fuller_test(df, target_cols):
+    """
+    :param df: DataFrame containing the time-series data
+    :param target_cols: List of target columns to be tested for stationarity
+    :return: Dictionary with column names as keys and corresponding p-values from ADF test as values
+    """
+    
+    # Dictionary to store results
+    output = {}
+
+    # Loop through target columns
+    for col in target_cols:
+        
+        # Print progress  
+        print(f"{datetime.now()}: Testing {col} for stationarity...")
+
+        try:
+            # Perform ADF test
+            adf_result = adfuller(df[col])
+            
+        except Exception as e:
+            # Handle errors
+            print(f"Error testing {col}. Skipping.")
+            print(e)
+            continue
+        
+        # Store p-value in output dictionary
+        output[col] = adf_result[1]
+
+    return output
+```
+
+This section focuses on determining representative samples for each target column based on the outcomes of the Dickey-Fuller test. The function representative_sample takes two inputs - a dictionary of DataFrames (dfs) containing time-series data for different tables, and another dictionary (adf) with the results of the Dickey-Fuller test for each column. The function creates a new dictionary, representative_samples, which stores representative samples categorized by 'min,' 'max,' and 'avg' values of the Dickey-Fuller test results.
+
+```python
+# Function to determine representative samples based on Dickey-Fuller test results
+def representative_sample(dfs, adf):
+    """
+    :param dfs: Dictionary of DataFrames containing time-series data for different tables
+    :param adf: Dictionary with Dickey-Fuller test results for each column
+    :return: Dictionary with representative samples for each column based on 'min,' 'max,' and 'avg' Dickey-Fuller results
+    """
+    
+    # Dictionary to store representative samples
+    representative_samples = {}
+
+    # Loop through columns
+    for col_name in adf:
+        representative_samples[col_name] = {}
+        
+        # Store DataFrames corresponding to 'min' and 'max' Dickey-Fuller values
+        representative_samples[col_name]['min'] = dfs[max(adf[col_name], key=adf[col_name].get)]
+        representative_samples[col_name]['max'] = dfs[min(adf[col_name], key=adf[col_name].get)]
+        
+        # Calculate the average DataFrame based on 'avg' Dickey-Fuller values
+        for table_name, value in adf[col_name].items():
+            if 'avg' not in representative_samples[col_name].keys():
+                representative_samples[col_name]['avg'] = dfs[table_name].copy()
+            else:
+                representative_samples[col_name]['avg'] += dfs[table_name]
+
+        # Normalize the average DataFrame
+        representative_samples[col_name]['avg'] = representative_samples[col_name]['avg'].div(len(adf[col_name]))
+
+    return representative_samples
+
+# Example usage
+representative_samples = representative_sample(train_tables, train_adf_by_col)
+```
+
+In this section, we execute a visualization of the seasonality within each sample, providing a visual verification of our analytical results. The function visualize_seasonality takes a list of DataFrames (dfs) as input, where each DataFrame represents a specific sample. The visualizations are created by splitting each DataFrame into intervals and plotting the averaged data for both 'non-violent' and 'violent' crimes. The resulting plots facilitate a comprehensive understanding of the temporal patterns in the dataset.
+
+```python
+import matplotlib.pyplot as plt
+
+# Function to visualize the seasonality of each sample
+def visualize_seasonality(dfs):
+    """
+    :param dfs: List of DataFrames representing different samples
+    """
+    
+    # Loop through each DataFrame in the list
+    for j, df in enumerate(dfs):
+        
+        # Define intervals for splitting the DataFrame
+        intervals = [365 * 3, 52 * 3, 12 * 3]  # Number of intervals to split the DataFrame
+        
+        # Create subplots based on the number of intervals
+        fig, axes = plt.subplots(len(intervals), 1, figsize=(30, 15))
+        plt.title(f'Table {j}') 
+        plt.subplots_adjust(hspace=0.4)
+
+        # Iterate through each interval
+        for count, interval in enumerate(intervals):
+            # Initialize an empty DataFrame for averaging
+            rows_per_interval = len(df) // interval
+            average_df = df.iloc[:rows_per_interval]
+
+            # Create a list of DataFrames, each corresponding to an interval
+            interval_dfs = [df.iloc[i * rows_per_interval:(i + 1) * rows_per_interval] for i in range(1, interval)]
+            
+            # Average data across the interval
+            for interval_df in interval_dfs:
+                average_df += interval_df
+
+            # Divide by the number of intervals to get the average
+            average_df /= len(interval_dfs)
+
+            # Create a plot for the averaged data in the current subplot
+            ax = axes[count]
+            ax.plot(average_df.index, average_df['non-violent'], label='Non-Violent')
+            ax.plot(average_df.index, average_df['violent'], label='Violent')
+            ax.legend()
+            ax.grid(True)
+
+        # Set a common x-label for all subplots
+        axes[-1].set_xlabel('Date')
+
+        # Show the entire plot
+        plt.show()
+
+# Example usage
+visualize_seasonality(dfs)
+```
