@@ -1,16 +1,16 @@
 # ML Crime Prediction
 ---
-### Introduction
+## Introduction
 Project Overview: The Machine Learning Crime Prediction Application is a data-driven initiative aimed at exploring machine learning models and frameworks by predicting crime in Chicago.
 
 Forecasting both violent and non-violent crimes across 77 neighborhoods for a future one-year period posed a significant challenge due to the scale and complexity of the dataset. We worked with 750 million rows of Chicago Crime and Infrastructure data, necessitating thorough cleaning and preprocessing.
 
-Our Solution Approach:
+### Our Solution Approach:
 
 Developed multivariate time series adaptations of models such as Linear Regression, LSTM, Auto Regression, Moving Average, and their combinations to enhance performance and robustness.
 Constructed a multivariate multi-step time series adaptation of a Random Forest model trained on three years of data to predict future crime occurrences with high accuracy.
 
-#### Tech Stack:
+### Tech Stack:
 - Python
 - Pandas
 - PyTorch
@@ -19,46 +19,46 @@ Constructed a multivariate multi-step time series adaptation of a Random Forest 
 - Matplotlib
 - Shapely
 ---
-### Description of Data
+## Description of Data
 
-#### Crime Data:
+### Crime Data:
 - Includes crime type, location details, arrest status, and time of occurrence.
 - Encompasses attributes such as primary crime type, location descriptions, district details, and coordinates (latitude and longitude).
 - Offers insights into crime patterns and trends in Chicago.
 
-#### Vacant and Abandoned Buildings:
+### Vacant and Abandoned Buildings:
 - Focuses on abandoned buildings in Chicago.
 - Provides details on building location, occupancy status, potential hazards, and observations related to property use.
 
-#### Divvy Bike Trips in Chicago:
+### Divvy Bike Trips in Chicago:
 - Contains trip IDs, start/stop times, station IDs, and station names.
 - Aids in understanding Divvy bike usage patterns and movement across the city.
 
-#### Bike Stations in Chicago:
+### Bike Stations in Chicago:
 - Presents information about bike station locations.
 - Provides latitude and longitude coordinates for each station, aiding in analyzing station distribution.
 
-#### Bus Stops in Chicago:
+### Bus Stops in Chicago:
 - Details bus stop IDs, stop names, and geographical coordinates.
 - Offers insights into the city's public transportation infrastructure.
 
-#### Train Stations in Chicago:
+### Train Stations in Chicago:
 - Includes station numbers, names, and geographical coordinates.
 - Provides information about the city's railway network and transportation hubs.
 
-#### Alleylights Out in Chicago:
+### Alleylights Out in Chicago:
 - Records outage start/end dates, duration, and geographical coordinates.
 - Focuses on lighting disruptions affecting Chicago's alleys.
 
-#### Streetlights Out in Chicago:
+### Streetlights Out in Chicago:
 - Records creation/completion dates, service request types, addresses, and geographical coordinates.
 - Offers insights into areas experiencing street lighting issues in the city.
 ---
-### Data Cleaning and Wrangling
+## Data Cleaning and Wrangling
 
 In this section, we detail the steps taken to clean and wrangle the dataset for the project. Given the complexity and size of the dataset, we encountered challenges that required meticulous handling of missing values, standardizing column names, and converting locational data formats.
 
-#### 1. Standard Cleaning Process
+### 1. Standard Cleaning Process
 
 We implemented a standardized cleaning process to ensure consistency in the dataset. This involved creating a `clean_data` function that accepts a DataFrame and a type parameter, performing the following steps:
 
@@ -90,7 +90,7 @@ def clean_data(df, type):
     return df
 ```
 
-#### 2. Clean Data Method (Linear Regression Class)
+### 2. Clean Data Method (Linear Regression Class)
 
 In the Linear Regression class, we applied the clean_data method to both training and testing datasets, converting the 'date' column to datetime format and extracting additional temporal features:
 
@@ -117,7 +117,7 @@ def clean_data(self):
     return self.train_dataset, self.test_dataset
 ```
 
-#### 3. Convert to Polygon Function
+### 3. Convert to Polygon Function
 
 We introduced a convert_to_polygon function that takes a DataFrame with locational data in the form of MULTIPOLYGON and converts it into a list of Polygon objects:
 
@@ -150,7 +150,7 @@ def convert_to_polygon(df):
     return updated_polygons
 ```
 
-#### 4. Determine Within Function
+### 4. Determine Within Function
 
 The determine_within function now takes latitude and longitude columns in a DataFrame and determines whether each location is within specified polygons, assigning a status and area accordingly:
 
@@ -193,7 +193,7 @@ def determine_within(df):
     return df
 ```
 
-#### 5. Prepare Data Method (Random Forest Class)
+### 5. Prepare Data Method (Random Forest Class)
 
 The prepare_data method in the Random Forest class prepares time-series datasets for modeling by creating various lag, rolling mean, rolling min, rolling max, and rolling standard deviation features for each target variable:
 
@@ -261,7 +261,7 @@ def prepare_data(self, exempt=[]):
     return self.train_df, self.test_df, self.features
 ```
 
-#### 6. Normalize DataFrame Method (Linear Regression Class)
+### 6. Normalize DataFrame Method (Linear Regression Class)
 
 The normalize_dataframe method normalizes all columns in a pandas DataFrame using the mean and standard deviation calculated from the training dataset:
 
@@ -289,9 +289,9 @@ def normalize_dataframe(self):
     return self.train_dataset, self.test_dataset
 ```
 
-#### 7. Aggregation and Pivoting Examples
+### 7. Aggregation and Pivoting Examples
 
-##### Fill Gaps Function
+#### Fill Gaps Function
 
 This function fills in missing combinations of date, hour, and area with zero values in a DataFrame:
 
@@ -315,7 +315,7 @@ def fill_gaps(df):
     return merged_df
 ```
     
-##### Aggregate Data Function
+#### Aggregate Data Function
 
 This function aggregates and merges various datasets related to crime, ridership, divvy trips, lighting, and vacant buildings:
 
@@ -392,10 +392,10 @@ def aggregate_data():
 ```
 
 ---
-### Research and Preparation
+## Research and Preparation
 This was by far the most time-intensive aspect of the project, as neither of us had done anything in machine learning before, let alone anything on this scale. Despite this, we dove headfirst into the high level applications of machine learning for time-series analysis. Unsurprisingly, we ran into problem after problem, and after realizing that most of our problems were due to a lack of understanding, we started from the basics.
 
-#### Time Series Machine Learning Models
+### Time Series Machine Learning Models
 Of the machine learning models that we researched, the ones that seemed most applicable and attractive for our use case were the ones in the ARIMA suite. However, in application, they still showed some drawbacks in terms of accuracy, and weren't able to model the true correlation between the different aspects of our final dataset.
 
 Aside from ARIMA, we explored LSTM, Random Forest, Linear Regression, and NN's for time-series application, all of which had similar issues ARIMA.
@@ -405,9 +405,9 @@ At this point, our interest in machine learning had grown to the point that we w
 We decided to do a ground-up implementation of each of these models but with the context of our use case in mind the entire time, hopefully achieving a strong representation of the correlation between Chicago crime and infrastructure.
 
 ---
-### Defining Testing and Training Datasets
+## Defining Testing and Training Datasets
 
-#### Date Ranges of each Dataset
+### Date Ranges of each Dataset
 
 **1. Crime Dataset**
 - *Min:* 01/01/2001 01:00:00 AM
@@ -429,5 +429,5 @@ We decided to do a ground-up implementation of each of these models but with the
 - *Min:* 2008-01-18
 - *Max:* 2023-10-19
 
-#### Representative Samples
+### Representative Samples
 
