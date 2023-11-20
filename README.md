@@ -3,7 +3,7 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Description of Data](#description-of-data)
-3. [Data Cleaning and Wrangling](#data-cleaning-and-wrangling)
+3. [Data Cleaning, Wrangling and Aggregation](#data-cleaning,-wrangling-and-aggregation)
 4. [Research and Preparation](#research-and-preparation)
 5. [Writing the Models](#writing-the-models)
 6. [Testing Model Accuracy (Final Results)](#testing-model-accuracy)
@@ -76,7 +76,7 @@ During the adaptation process, we also conceived a novel model approach, detaile
 - Records creation/completion dates, service request types, addresses, and geographical coordinates.
 - Offers insights into areas experiencing street lighting issues in the city.
 ---
-## Data Cleaning and Wrangling
+## Data Cleaning, Wrangling and Aggregation
 [Back to Table of Contents](#table-of-contents)
 
 In this section, we detail the steps taken to clean and wrangle the dataset for the project. Given the complexity and size of the dataset, we encountered challenges that required meticulous handling of missing values, standardizing column names, and converting locational data formats.
