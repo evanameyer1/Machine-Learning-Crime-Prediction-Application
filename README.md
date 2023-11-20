@@ -1,5 +1,13 @@
 # ML Crime Prediction
 ---
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Description of Data](#description-of-data)
+3. [Data Cleaning and Wrangling](#data-cleaning-and-wrangling)
+4. [Research and Preparation](#research-and-preparation)
+5. [Writing the Models](#writing-the-models)
+6. [Testing Model Accuracy (Final Results)](#testing-model-accuracy)
+---
 ## Introduction
 Project Overview: The Machine Learning Crime Prediction Application is a data-driven initiative aimed at exploring machine learning models and frameworks by predicting crime in Chicago.
 
