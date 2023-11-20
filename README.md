@@ -442,6 +442,10 @@ We decided to do a ground-up implementation of each of these models but with the
 - *Min:* 2008-01-18
 - *Max:* 2023-10-19
 
+#### Date Ranges Visualized:
+
+![Date Ranges](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/raw/new-main/date_ranges.png)
+
 ### Testing and Training Datasets
 
 Considering the specified date ranges outlined earlier, our decision was to focus our efforts on the period spanning 2016 to 2020, encompassing comprehensive data from all relevant datasets. Subsequently, we divided the extensive dataset into distinct subsets, maintaining a 3:1 ratio. Adhering to the natural chronology of a time-series dataset, our training dataset consisted of all data points recorded from 01/01/2016, to 12/31/2018, with our testing dataset incorporated data points from 01/01/2019, to 12/31/2019. The choice of this extended timeframe for the testing dataset was deliberate, aiming to ensure that our models could effectively capture hourly, daily, weekly, monthly, and yearly seasonal trends. 
@@ -455,10 +459,6 @@ Our final testing and training datasets each had the following columns:
 - bike_rides (feature)
 - lighting (feature)
 - vacant_buildings (feature)
-
-#### Date Ranges Visualized:
-
-![Date Ranges](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/raw/new-main/date_ranges.png)
 
 ### Representative Samples
 
@@ -603,3 +603,201 @@ def visualize_seasonality(dfs):
 # Example usage
 visualize_seasonality(dfs)
 ```
+---
+## Writing the Models
+
+Following the acquisition of our representative samples, we proceeded with the refinement of our models. The code snippets below showcase some instances of our implementations; however, it's essential to note that our work on models is still ongoing. Specifically, for models not inherently designed for time-series data, we applied diverse data aggregation techniques to enable their utilization with time-series data (as demonstrated earlier in the "Prepare Data Method" example).
+
+One illustration involves our adaptation of the conventional Linear Regression model to accommodate multiple features. In this adaptation, we modified the standard Linear Regression equation by utilizing a Python list to incorporate distinct coefficients for each x value.
+
+1. Loss Function (Linear Regression)
+
+```python
+def loss(self, df):
+    """
+    Calculate the mean squared error loss of the model on a dataset.
+    
+    Parameters:
+    - df: pandas DataFrame, the dataset on which to calculate the loss.
+    
+    Returns:
+    - str: A string representing the total error normalized by the mean target value.
+    """
+    # Initialize our variables
+    total_error = 0
+    total_y = 0
+    
+    # Iterating through every row of the passed dataframe
+    for i in range(len(df)):
+        
+        # Define our x values as a vector of each feature column at the current row
+        x = [df.iloc[i][col] for col in self.features]
+    
+        # Grab our expected y value to compare our predicted y value against
+        y = df.iloc[i][self.target]
+    
+        # Sum the products of each coefficient and corresponding x value 
+        total_m = sum(self.m[j] * x[j] for j in range(len(self.features)))
+        total_y += (total_m + self.b)
+    
+        # Calculate squared difference
+        total_error += (y - (total_m + self.b)) ** 2
+    
+    # Average values over each row
+    total_error /= float(len(df))
+    total_y /= float(len(df))
+    
+    return total_error, f'Total Error for the Model: {total_error} | Relative Error for the Model: {total_error / abs(total_y)}'
+```
+
+2. Gradient Descent Function (Linear Regression)
+
+```python
+def gradient_descent(self, m_now, b_now):
+    """
+    Perform one step of gradient descent to update model coefficients.
+
+    Parameters:
+    - m_now: list of float, current model coefficients for features.
+    - b_now: float, current model intercept.
+
+    Returns:
+    - list of float: Updated model coefficients for features.
+    - float: Updated model intercept.
+    """
+    # Initalize a gradient variable for each feature column
+    m_gradients = [0] * (len(self.features))
+    b_gradient = 0
+
+    # Iterate through every row
+    for i in range(self.length):
+
+        # Define our x values as a vector of each feature column at the current row
+        x = [self.train_dataset.iloc[i][col] for col in self.features]
+
+        # Grab our expected y value to compare our predicted y value against
+        y = self.train_dataset.iloc[i][self.target]
+
+        # Sum the products of each coefficient and corresponding x value 
+        total_m = sum(m_now[j] * x[j] for j in range(len(self.features)))
+
+        # Take the derivative with respect to b
+        b_gradient += -(2 / self.length) * (y - (total_m + b_now))
+
+        # Take the derivative with respect to m
+        for j in range(len(self.features)):
+            m_gradients[j] += -(2 / self.length) * x[j] * (y - (total_m + b_now))
+
+    # Updated the model's coefficients based on the gradient values
+    updated_m = [m_now[j] - m_gradients[j] * self.learning_rate for j in range(len(self.features))]
+    updated_b = b_now - b_gradient * self.learning_rate
+
+    return updated_m, updated_b
+```
+3. Training Function (Linear Regression)
+By modifying the equation of the Linear Regression model, we observed significant fluctuations in the accuracy and performance of our model. To mitigate this variability, we introduced learning rate decay and a patience counter within our training function. This integration is crucial because of:
+
+- Stability Enhancement: Adjusting the equation of the Linear Regression model can lead to instability in training, affecting the model's convergence and overall performance. The incorporation of learning rate decay and a patience counter helps stabilize the training process, minimizing fluctuations and ensuring a more consistent model.
+- Optimal Learning Rate Adjustment: Learning rate decay ensures that the model's learning rate diminishes over time, allowing it to converge more effectively toward an optimal solution. This adaptation prevents overshooting and oscillations during training, enhancing the model's ability to find an optimal set of weights for improved predictions.
+- Adaptive Training Duration: The patience counter determines the number of consecutive epochs with no improvement in performance before adjusting the learning rate. By dynamically adjusting the learning rate based on performance trends, the model adapts its training duration, avoiding premature convergence or prolonged training on stagnant data, which enhances efficiency.
+
+```python
+def train(self, ratio=0.1, max_epochs=None, min_loss_delta=0.01, patience=10):
+    """
+        Train the Linear Regression model using gradient descent.
+
+        This method iteratively updates the model's coefficients and intercept using gradient descent. It monitors the training process for convergence and stops training based on specified conditions, such as the maximum number of epochs, loss improvement, or patience.
+
+        Parameters:
+        - ratio (float): The fraction of the maximum epochs used for checkpointing.
+        - max_epochs (int): The maximum number of training epochs.
+        - min_loss_delta (float): The minimum change in loss to continue training.
+        - patience (int): The number of epochs to tolerate a lack of improvement.
+
+        Returns:
+        - None
+
+        Raises:
+        - ValueError: If max_epochs is not provided or is less than or equal to 0.
+
+        This method also sets the model's parameters to the values associated with the minimum stored loss during training.
+
+        """
+    
+    if max_epochs is None:
+        raise ValueError("You must provide a value for max_epochs.")
+    if max_epochs <= 0:
+        raise ValueError("max_epochs must be greater than 0.")
+    
+    # Initialize variables
+    checkpoint = round(max_epochs * ratio)
+    learning_rate = self.initial_learning_rate
+    prev_loss = float('inf')
+    min_loss = float('inf')
+    patience_counter = 0
+    loss_history = []
+    
+    for i in range(max_epochs):
+        # Save coefficients in case we want to revert back after calculating error
+        temp_m = self.m
+        temp_b = self.b
+
+        # Determine gradient descent
+        self.m, self.b = self.gradient_descent(self.m, self.b)
+
+        # Determine the loss of the updated model 
+        loss, string = self.loss(self.train_dataset[:i + 1])
+        self.losses[loss] = self.m, self.b
+
+        # If the error loss is increasing by a statistically determined amount add one to the patience counter, which will break the loop when it consecutively reaches the threshold
+        if (prev_loss != float('inf')) and ((loss - prev_loss >= prev_loss * 0.5) or (loss >= min_loss)) and (loss < statistics.stdev(self.train_dataset[self.target])):
+            patience_counter += 1
+
+        # If the error is moving down, reset the patience counter and update the minimum loss variable
+        elif loss < min_loss:
+            min_loss = loss
+            patience_counter = 0
+
+        # Otherwise the error loss is increasing slightly
+        else:
+            patience_counter = 0
+
+        # Add the loss to our lost history storage
+        loss_history.append(loss)
+
+        # Every predetermined checkpoint we print updates
+        if (i % checkpoint == 0) and (i != 0):
+            print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} - Epoch {i} - {string}')
+            print(self.m, self.b)
+
+        # If the patience counter has surpassed the patience threshold, exit the loop
+        if patience_counter >= patience:
+            print(f"Training stopped due to lack of improvement for {patience} epochs. Current Error - {loss}")
+            break
+
+        # Updated loss and learning rate variables
+        prev_loss = loss
+        learning_rate *= self.learning_rate_decay
+        self.learning_rate = learning_rate
+
+        # Calculate moving average of the loss history
+        if i >= patience:
+            recent_losses = loss_history[-patience:]
+            moving_average = np.mean(recent_losses)
+            if moving_average < min_loss_delta:
+                print(f"Training stopped due to a small moving average loss change.")
+                break
+
+    # Set the parameters to the ones with the minimum stored loss
+    min_loss = min(self.losses.keys())
+    self.m, self.b = self.losses[min_loss]
+    print(f'Training Complete. Final Error: {min_loss}')
+```
+
+---
+## Testing Model Accuracy
+
+
+
+
+---
