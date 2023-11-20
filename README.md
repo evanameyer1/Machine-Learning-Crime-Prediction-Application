@@ -462,7 +462,9 @@ Considering the challenge of working with testing and training datasets for all 
 
 Given that each adaptation involved incorporating time-series data into every model, we established three representative samples for each target column ('non-violent' and 'violent' crimes). These samples were determined based on seasonality, identified through a Dickey-Fuller test, and included metrics for 'min,' 'avg,' and 'max.' This streamlined approach allowed for a comprehensive yet more manageable evaluation of model performance.
 
-In this section, we employ the Augmented Dickey-Fuller (ADF) test from the statsmodels library to assess the stationarity of time-series data. The purpose is to identify and address any potential non-stationarity within the dataset, crucial for accurate modeling and forecasting. The function dickey_fuller_test iterates through specified target columns, conducts the ADF test for each, and returns a dictionary containing p-values indicating the stationarity of each column.:
+### 1. Dickey Fuller Test
+
+Here, we employ the Augmented Dickey-Fuller (ADF) test from the statsmodels library to assess the stationarity of time-series data. The purpose is to identify and address any potential non-stationarity within the dataset, crucial for accurate modeling and forecasting. The function dickey_fuller_test iterates through specified target columns, conducts the ADF test for each, and returns a dictionary containing p-values indicating the stationarity of each column.:
 
 ```python
 from datetime import datetime
@@ -501,7 +503,9 @@ def dickey_fuller_test(df, target_cols):
     return output
 ```
 
-This section focuses on determining representative samples for each target column based on the outcomes of the Dickey-Fuller test. The function representative_sample takes two inputs - a dictionary of DataFrames (dfs) containing time-series data for different tables, and another dictionary (adf) with the results of the Dickey-Fuller test for each column. The function creates a new dictionary, representative_samples, which stores representative samples categorized by 'min,' 'max,' and 'avg' values of the Dickey-Fuller test results.
+### 2. Representative Samples
+
+Here we focuses on determining representative samples for each target column based on the outcomes of the Dickey-Fuller test. The function representative_sample takes two inputs - a dictionary of DataFrames (dfs) containing time-series data for different tables, and another dictionary (adf) with the results of the Dickey-Fuller test for each column. The function creates a new dictionary, representative_samples, which stores representative samples categorized by 'min,' 'max,' and 'avg' values of the Dickey-Fuller test results.
 
 ```python
 # Function to determine representative samples based on Dickey-Fuller test results
@@ -539,7 +543,9 @@ def representative_sample(dfs, adf):
 representative_samples = representative_sample(train_tables, train_adf_by_col)
 ```
 
-In this section, we execute a visualization of the seasonality within each sample, providing a visual verification of our analytical results. The function visualize_seasonality takes a list of DataFrames (dfs) as input, where each DataFrame represents a specific sample. The visualizations are created by splitting each DataFrame into intervals and plotting the averaged data for both 'non-violent' and 'violent' crimes. The resulting plots facilitate a comprehensive understanding of the temporal patterns in the dataset.
+### 3. Visualizing Seasonality
+
+Finally, here we execute a visualization of the seasonality within each sample, providing a visual verification of our analytical results. The function visualize_seasonality takes a list of DataFrames (dfs) as input, where each DataFrame represents a specific sample. The visualizations are created by splitting each DataFrame into intervals and plotting the averaged data for both 'non-violent' and 'violent' crimes. The resulting plots facilitate a comprehensive understanding of the temporal patterns in the dataset.
 
 ```python
 import matplotlib.pyplot as plt
