@@ -456,9 +456,9 @@ Our final testing and training datasets each had the following columns:
 - lighting (feature)
 - vacant_buildings (feature)
 
-**Date Ranges Visualized: **
+#### Date Ranges Visualized:
 
-[Date Ranges](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/raw/new-main/date_ranges.png)
+![Date Ranges](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/raw/new-main/date_ranges.png)
 
 ### Representative Samples
 
