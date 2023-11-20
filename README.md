@@ -41,6 +41,7 @@ During the adaptation process, we also conceived a novel model approach, detaile
 - Additional combinations of ARIMA, SARIMA, VAR, and AR
 ---
 ## Description of Data
+[Back to Table of Contents](#table-of-contents)
 
 ### Crime Data:
 - Includes crime type, location details, arrest status, and time of occurrence.
@@ -76,6 +77,7 @@ During the adaptation process, we also conceived a novel model approach, detaile
 - Offers insights into areas experiencing street lighting issues in the city.
 ---
 ## Data Cleaning and Wrangling
+[Back to Table of Contents](#table-of-contents)
 
 In this section, we detail the steps taken to clean and wrangle the dataset for the project. Given the complexity and size of the dataset, we encountered challenges that required meticulous handling of missing values, standardizing column names, and converting locational data formats.
 
@@ -414,6 +416,8 @@ def aggregate_data():
 
 ---
 ## Research and Preparation
+[Back to Table of Contents](#table-of-contents)
+
 This was by far the most time-intensive aspect of the project, as neither of us had done anything in machine learning before, let alone anything on this scale. Despite this, we dove headfirst into the high level applications of machine learning for time-series analysis. Unsurprisingly, we ran into problem after problem, and after realizing that most of our problems were due to a lack of understanding, we started from the basics.
 
 ### Time Series Machine Learning Models
@@ -613,6 +617,7 @@ visualize_seasonality(dfs)
 ```
 ---
 ## Writing the Models
+[Back to Table of Contents](#table-of-contents)
 
 Following the acquisition of our representative samples, we proceeded with the refinement of our models. The code snippets below showcase some instances of our implementations; however, it's essential to note that our work on models is still ongoing. Specifically, for models not inherently designed for time-series data, we applied diverse data aggregation techniques to enable their utilization with time-series data (as demonstrated earlier in the "Prepare Data Method" example).
 
@@ -950,6 +955,7 @@ class SimpleLSTM(light.LightningModule):
 ```
 ---
 ## Testing Model Accuracy
+[Back to Table of Contents](#table-of-contents)
 
 After successfully completing each model, we ran multiple statistical calculations on each model's predicted data to determine error and accuracy. 
 
