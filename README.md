@@ -43,6 +43,8 @@ During the adaptation process, we also conceived a novel model approach, detaile
 ## Description of Data
 [Back to Table of Contents](#table-of-contents)
 
+![Relational Database](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/blob/new-main/clean_db.png)
+
 ### Crime Data:
 - Includes crime type, location details, arrest status, and time of occurrence.
 - Encompasses attributes such as primary crime type, location descriptions, district details, and coordinates (latitude and longitude).
