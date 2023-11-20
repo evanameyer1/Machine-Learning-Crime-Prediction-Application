@@ -405,3 +405,29 @@ At this point, our interest in machine learning had grown to the point that we w
 We decided to do a ground-up implementation of each of these models but with the context of our use case in mind the entire time, hopefully achieving a strong representation of the correlation between Chicago crime and infrastructure.
 
 ---
+### Defining Testing and Training Datasets
+
+#### Date Ranges of each Dataset
+
+**1. Crime Dataset**
+- *Min:* 01/01/2001 01:00:00 AM
+- *Max:* 12/31/2022 12:52:00 PM
+
+**2. Ridership Dataset**
+- *Min:* 2016-01-01
+- *Max:* 2022-10-31
+
+**3. Lighting Dataset**
+- *Min:* 2010-07-06
+- *Max:* 2019-02-12
+
+**4. Divvy Trips Dataset**
+- *Min:* 2013-06-27 01:06:00
+- *Max:* 2019-12-31 23:57:17
+
+**5. Vacant Buildings Dataset**
+- *Min:* 2008-01-18
+- *Max:* 2023-10-19
+
+#### Representative Samples
+
