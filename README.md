@@ -43,8 +43,6 @@ During the adaptation process, we also conceived a novel model approach, detaile
 ## Description of Data
 [Back to Table of Contents](#table-of-contents)
 
-![Relational Database](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/blob/new-main/clean_db.png)
-
 ### Crime Data:
 - Includes crime type, location details, arrest status, and time of occurrence.
 - Encompasses attributes such as primary crime type, location descriptions, district details, and coordinates (latitude and longitude).
@@ -77,6 +75,11 @@ During the adaptation process, we also conceived a novel model approach, detaile
 ### Streetlights Out in Chicago:
 - Records creation/completion dates, service request types, addresses, and geographical coordinates.
 - Offers insights into areas experiencing street lighting issues in the city.
+
+![Relational Database](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/blob/new-main/clean_db.png)
+
+###### _Diagram of how each datasat same together after data cleaning_
+
 ---
 ## Data Cleaning, Wrangling and Aggregation
 [Back to Table of Contents](#table-of-contents)
