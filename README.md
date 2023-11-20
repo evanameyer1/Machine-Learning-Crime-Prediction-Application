@@ -456,6 +456,10 @@ Our final testing and training datasets each had the following columns:
 - lighting (feature)
 - vacant_buildings (feature)
 
+**Date Ranges Visualized: **
+
+[Date Ranges](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/raw/new-main/date_ranges.png)
+
 ### Representative Samples
 
 Considering the challenge of working with testing and training datasets for all 77 neighborhoods and the need to fit approximately 7 models per dataset, the task of managing around 1078 unique models proved to be impractical. To address this, we opted for a more manageable approach by creating 12 representative datasets. These datasets served as a basis for comparing the performance and accuracy of each model across various test cases.
