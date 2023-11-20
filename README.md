@@ -1037,14 +1037,26 @@ def print_performance(self, target, sig_level=0.05):
 ### Random Forest Results
 
 #### Minimum Seasonality Models
+
+![Sample Minimum Seasonality Violent Tree](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/blob/new-main/models/graphs/trees/small_trees/violent_min_model_st.png)
+
+###### _Sample Minimum Seasonality Violent Tree (made smaller for better visual)_
 - Non-Violent: WAE: 164.4428, WAE Acc: **97.972%**, RMSE: 0.0512, RMSE Acc: 90.8533%
 - Violent: WAE: 9.7219, WAE Acc: **99.7209%**, RMSE: 0.0118, RMSE Acc: 96.9487%
 
 #### Maximum Seasonality Models
+
+![Sample Maximum Seasonality Non-Violent Tree](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/blob/new-main/models/graphs/trees/small_trees/non-violent_max_model_st.png)
+
+###### _Sample Maximum Seasonality Non-Violent Tree (made smaller for better visual)_
 - Non-Violent: WAE: 1151.9205, WAE Acc: **93.3478%**, RMSE: 0.1373, RMSE Acc: 89.6985%
 - Violent: WAE: 1847.1796, WAE Acc: **89.413%**, RMSE: 0.1537, RMSE Acc: 82.3706%
 
 #### Average Seasonality Models
+
+![Sample Average Seasonality Violent Tree](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/blob/new-main/models/graphs/trees/small_trees/violent_avg_model_st.png)
+
+###### _Sample Average Seasonality Violent Tree (made smaller for better visual)_
 - Non-Violent: WAE: 164.4428, WAE Acc: **97.972%**, RMSE: 0.0512, RMSE Acc: 90.8533%
 - Violent: WAE: 9.7219, WAE Acc: **99.7209%**, RMSE: 0.0118, RMSE Acc: 96.9487%
   
