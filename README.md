@@ -3,7 +3,7 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Description of Data](#description-of-data)
-3. [Data Cleaning, Wrangling and Aggregation](#data-cleaning,-wrangling-and-aggregation)
+3. [Data Cleaning, Wrangling and Aggregation](#data-cleaning-wrangling-and-aggregation)
 4. [Research and Preparation](#research-and-preparation)
 5. [Writing the Models](#writing-the-models)
 6. [Testing Model Accuracy (Final Results)](#testing-model-accuracy)
