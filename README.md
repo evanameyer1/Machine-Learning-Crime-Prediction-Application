@@ -76,6 +76,8 @@ During the adaptation process, we also conceived a novel model approach, detaile
 - Records creation/completion dates, service request types, addresses, and geographical coordinates.
 - Offers insights into areas experiencing street lighting issues in the city.
 
+## Relational Diagram
+
 ![Relational Database](https://github.com/evanameyer1/Machine-Learning-Crime-Prediction-Application/blob/new-main/clean_db.png)
 
 ###### _Diagram of how each datasat same together after data cleaning_
